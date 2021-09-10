@@ -11,6 +11,7 @@
 #import <CallKit/CallKit.h>
 #import <Intents/Intents.h>
 #import <PushKit/PushKit.h>
+#import "PushKitPayload.h"
 
 @interface CallKeep: NSObject<CXProviderDelegate, PKPushRegistryDelegate>
 @property (nonatomic, strong, nullable) CXCallController *callKeepCallController;

@@ -7,6 +7,7 @@
 //
 #import <objc/runtime.h>
 #import <AVFoundation/AVFoundation.h>
+#import "PushKitPayload.h"
 
 #import "CallKeep.h"
 
@@ -30,6 +31,7 @@ static NSString *const CallKeepPushKitToken = @"CallKeepPushKitToken";
     NSOperatingSystemVersion _version;
     bool _hasListeners;
     NSMutableArray *_delayedEvents;
+    PushKitPayload *_pushKitPayload;
 }
 
 - (FlutterMethodChannel *)eventChannel
@@ -137,6 +139,9 @@ static CXProvider* sharedProvider;
     else if([@"reportUpdatedCall" isEqualToString:method]){
         [self reportUpdatedCall:argsMap[@"uuid"] contactIdentifier:argsMap[@"localizedCallerName"]];
         result(nil);
+    } else if([@"setupPushKitPayload" isEqualToString:method]) {
+        _pushKitPayload = [[PushKitPayload alloc] initWithDictionaty:argsMap];
+        result(nil);
     }
     else {
         return NO;
@@ -243,12 +248,22 @@ static CXProvider* sharedProvider;
         }
         return;
     }
+    
+    if (!_pushKitPayload) {
+        _pushKitPayload = [[PushKitPayload alloc] initWithUuid: @"uuid" handle: @"caller_id" handleType: @"caller_id_type" hasVideo: @"has_video" localizedCallerName: @"caller_name"];
+    }
 
-    NSString *uuid = dic[@"uuid"];
-    NSString *callerId = dic[@"caller_id"];
-    NSString *callerName = dic[@"caller_name"];
-    BOOL hasVideo = [dic[@"has_video"] boolValue];
-    NSString *callerIdType = dic[@"caller_id_type"];
+    NSString *uuid = dic[_pushKitPayload.uuid];
+    NSString *callerId = dic[_pushKitPayload.handle];
+    NSString *callerName = dic[_pushKitPayload.localizedCallerName];
+    BOOL hasVideo = [dic[_pushKitPayload.hasVideo] boolValue];
+    NSString *callerIdType = dic[_pushKitPayload.handleType];
+    
+    NSLog(@"uuid --- %@", uuid);
+    NSLog(@"callerId --- %@", callerId);
+    NSLog(@"callerName --- %@", callerName);
+    NSLog(@"hasVideo --- %@", hasVideo);
+    NSLog(@"callerIdType --- %@", callerIdType);
    
 
     if( uuid == nil) {

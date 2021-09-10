@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/services.dart';
+
+import 'package:callkeep/src/model/push_kit_payload.dart';
 import 'package:flutter/material.dart'
     show
         AlertDialog,
@@ -11,12 +12,14 @@ import 'package:flutter/material.dart'
         TextButton,
         Widget,
         showDialog;
+import 'package:flutter/services.dart';
 import 'package:flutter/services.dart' show MethodChannel;
 
 import 'actions.dart';
 import 'event.dart';
 
 bool get isIOS => Platform.isIOS;
+
 bool get supportConnectionService =>
     !isIOS && int.parse(Platform.version) >= 23;
 
@@ -24,9 +27,11 @@ class FlutterCallkeep extends EventManager {
   factory FlutterCallkeep() {
     return _instance;
   }
+
   FlutterCallkeep._internal() {
     _event.setMethodCallHandler(eventListener);
   }
+
   static final FlutterCallkeep _instance = FlutterCallkeep._internal();
   static const MethodChannel _channel = MethodChannel('FlutterCallKeep.Method');
   static const MethodChannel _event = MethodChannel('FlutterCallKeep.Event');
@@ -40,6 +45,12 @@ class FlutterCallkeep extends EventManager {
       return;
     }
     await _setupIOS(options['ios'] as Map<String, dynamic>);
+  }
+
+  Future<void> setupPushKitPayload(PushKitPayload payload) async {
+    if (!isIOS) return;
+
+    return _channel.invokeMethod<void>('setupPushKitPayload', payload.toJson());
   }
 
   Future<void> registerPhoneAccount() async {

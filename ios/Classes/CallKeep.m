@@ -255,9 +255,13 @@ static CXProvider* sharedProvider;
 
     NSString *uuid = dic[_pushKitPayload.uuid];
     NSString *callerId = dic[_pushKitPayload.handle];
-    NSString *callerName = dic[_pushKitPayload.localizedCallerName];
     BOOL hasVideo = [dic[_pushKitPayload.hasVideo] boolValue];
     NSString *callerIdType = dic[_pushKitPayload.handleType];
+    NSString *callerName;
+    if (_pushKitPayload.localizedCallerName){
+        callerName = dic[_pushKitPayload.localizedCallerName];
+    }
+
     
     NSLog(@"uuid --- %@", uuid);
     NSLog(@"callerId --- %@", callerId);
